@@ -1,0 +1,68 @@
+#welcome {
+  color: white;
+  text-align: center;
+ 
+  transition: all 0.3s ease;
+}
+
+.welcome-large {
+  font: 3em sans-serif;
+  margin: 100px auto;
+  padding: 50px 200px;
+  line-height: 1.5;
+}
+
+.welcome-small {
+  font: 1.5em sans-serif;
+  margin: 10px 0;
+  opacity: 0.7;
+}
+  
+  
+/* LanguageSwitcher */
+.lang-switcher {
+  display: flex;
+  justify-content: flex-end;
+  margin: 10px;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.lang-switcher button {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  background: #ffffff22;
+  color: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s, transform 0.2s;
+}
+
+.lang-switcher button:hover {
+  background: #ffffff44;
+  transform: scale(1.05);
+}
+
+.lang-switcher button.active {
+  background: #47236a;
+  font-weight: bold;
+}
+
+
+
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  #welcome {
+    color: white;
+    font: 2em sans-serif;
+    text-align: center;
+    margin: 50px auto;
+    padding: 50px;
+    line-height: 1.5;
+  }
+
+}

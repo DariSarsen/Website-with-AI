@@ -1,0 +1,17 @@
+{
+    "welcome": "Welcome! Upload a file and I'll generate questions for you.",
+    "upload_file": "Upload a file",
+    "upload_file_input": "Select the file to generate the test",
+    "question_count": "Number of questions: ",
+    "difficulty": "Difficulty: ",
+    "with_options": "With multiple answers: ",
+    "generated_test": "Generated questions: ",
+    "delete_test": "Delete test",
+    "export_pdf": "Export to PDF",
+    "export_csv": "Export to CSV",
+    "preview_title": "Your full generated test: ",
+    
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard"
+    }
