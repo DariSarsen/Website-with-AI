@@ -4,7 +4,9 @@ const cors = require('cors');
 const http = require('http');
 const sequelize = require("./config/db");
 
-const uploadRoutes = require('./routes/upload'); 
+const generateRoutes = require('./routes/generate'); 
+const testRoutes = require("./routes/testRoutes");
+
 
 
 const app = express();
@@ -30,8 +32,8 @@ app.use(cors(corsOptions));
 
 
 //routes
-app.use('/api', uploadRoutes); 
-
+app.use('/api', generateRoutes); 
+app.use("/api", testRoutes);
 
 //server
 const server = http.createServer(app);

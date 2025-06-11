@@ -3,8 +3,9 @@ import { saveAs } from "file-saver";
 import html2pdf from "html2pdf.js";
 import TestDisplay from "./TestDisplay";
 import TestPreview from "./TestPreview";
+import TestRating from "./TestRating";
 
-import { uploadFile } from "../services/fileService";
+import { generateTestRequest } from "../services/fileService";
 import "../styles/FileUpload.css";
 
 import { useTranslation } from 'react-i18next';
@@ -23,6 +24,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onTestGenerated, onTestCleared 
   const [questionCount, setQuestionCount] = useState<number>(5);
   const [difficulty, setDifficulty] = useState<string>("medium");
   const [withOptions, setWithOptions] = useState<boolean>(true);
+  const [wishText, setWishText] = useState<string>("");
 
   useEffect(() => {
     const savedTest = localStorage.getItem("test");
@@ -34,28 +36,36 @@ const FileUpload: React.FC<FileUploadProps> = ({ onTestGenerated, onTestCleared 
   };
 
   const handleUpload = async () => {
-    if (!file) return alert("Выберите файл!");
-    setIsLoading(true); 
-  
-    try {
-      const { test } = await uploadFile(file, questionCount, difficulty, withOptions);
-      setTestText(test);
-      localStorage.setItem("test", test);
-      if (onTestGenerated) onTestGenerated();
-    } catch (error) {
-      console.error("Ошибка загрузки файла:", error);
-    } finally {
-      setIsLoading(false); 
-    }
-  };
+  if (!file && !wishText.trim()) return alert(t("please_upload_or_write"));
+
+  setIsLoading(true);
+  try {
+    const { test } = await generateTestRequest(
+      file,
+      questionCount,
+      difficulty,
+      withOptions,
+      wishText
+    );
+    setTestText(test);
+    localStorage.setItem("test", test);
+    if (onTestGenerated) onTestGenerated();
+  } catch (error) {
+    console.error("Ошибка генерации теста:", error);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
   
 
-  const handleClearTest = () => {
-    setTestText("");
-    localStorage.removeItem("test");
-    
-    if (onTestCleared) onTestCleared();
-  };
+const handleClearTest = () => {
+  setTestText("");
+  localStorage.removeItem("test");
+  localStorage.removeItem("testRated");
+  if (onTestCleared) onTestCleared();
+};
+
 
   const handleEditTest = (index: number, newValue: string) => {
     const questions = testText.split("\n\n");
@@ -87,42 +97,68 @@ const FileUpload: React.FC<FileUploadProps> = ({ onTestGenerated, onTestCleared 
     
     <div className="container">
       
-      <label className="custom-file-upload">
-        {file ? file.name : t("upload_file_input")}
-        <input type="file" onChange={handleFileChange} />
-      </label>
+      <div className="wish-input-wrapper">
+        <textarea
+          placeholder={t("wish_input_label")}
+          value={wishText}
+          onChange={(e) => setWishText(e.target.value)}
+          rows={4}
+          className="wish-textarea"
+        />
+
+        <label className="plus-button">
+          <svg width="100%" height="100%" viewBox="-3 -3 15 15" >
+            <path d="M 4 0 L 5 0 L 5 4 L 9 4 L 9 5 L 5 5 L 5 9 L 4 9 L 4 5 L 0 5 L 0 4 L 4 4 Z" fill="#ffffff" />
+          </svg>
+          <input
+            type="file"
+            onChange={handleFileChange}
+            className="file-input-hidden"
+          />
+        </label>
+      </div>
 
 
-      <label>
-      {t("question_count")}
-        <input
-          type="number"
-          value={questionCount}
-          onChange={(e) => setQuestionCount(Number(e.target.value))}
-          min={1}
-          max={50}
-        />
-      </label>
-      <label>
-      {t("difficulty")}
-        <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
-          <option value="easy">{t("easy")}</option>
-          <option value="medium">{t("medium")}</option>
-          <option value="hard">{t("hard")}</option>
-        </select>
-      </label>
-      <label>
-      {t("with_options")}
-        <input
-          type="checkbox"
-          checked={withOptions}
-          onChange={() => setWithOptions(!withOptions)}
-        />
-      </label>
-      <button onClick={handleUpload}>{t("upload_file")}</button>
-      <button onClick={handleClearTest}>{t("delete_test")}</button>
-      <button onClick={exportToPDF}>{t("export_pdf")}</button>
-      <button onClick={exportToCSV}>{t("export_csv")}</button>
+      <div className="flexible">
+        <label className="labels">
+        {t("question_count")}
+          <input
+            type="number"
+            value={questionCount}
+            onChange={(e) => setQuestionCount(Number(e.target.value))}
+            min={1}
+            max={50}
+          />
+        </label>
+        <label className="labels">
+        {t("difficulty")}
+          <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
+            <option value="easy">{t("easy")}</option>
+            <option value="medium">{t("medium")}</option>
+            <option value="hard">{t("hard")}</option>
+          </select>
+        </label>
+        <label className="labels">
+        {t("with_options")}
+          <input
+            type="checkbox"
+            checked={withOptions}
+            onChange={() => setWithOptions(!withOptions)}
+          />
+        </label>
+
+      </div>
+      
+      <div className="flexible">
+        <button onClick={handleUpload}>{t("upload_file")}</button>
+        {testText && (
+          <>
+          <button onClick={handleClearTest}>{t("delete_test")}</button>
+          <button onClick={exportToPDF}>{t("export_pdf")}</button>
+          <button onClick={exportToCSV}>{t("export_csv")}</button>
+          </>
+        )} 
+      </div>
 
       {isLoading ? (
         <div className="spinner" />
@@ -136,6 +172,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onTestGenerated, onTestCleared 
               <h2>{t("preview_title")}</h2>
               <TestPreview testText={testText} />
             </div>
+            <TestRating />
           </div>
         )}
         </>
